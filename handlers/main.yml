@@ -25,6 +25,7 @@
       enabled: yes
       masked: no
       state: reloaded
+  when: ansible_virtualization_type != "docker"
 
 - name: systemd restart var-tmp.mount
   become: yes
@@ -34,32 +35,38 @@
       enabled: yes
       masked: no
       state: reloaded
+  when: ansible_virtualization_type != "docker"
 
 - name: generate new grub config
   become: yes
   command: grub2-mkconfig -o "{{ grub_cfg.stat.lnk_source }}"
+  when: ansible_virtualization_type != "docker"
 
 - name: restart firewalld
   become: yes
   service:
       name: firewalld
       state: restarted
+  when: ansible_virtualization_type != "docker"
 
 - name: restart xinetd
   become: yes
   service:
       name: xinetd
       state: restarted
+  when: ansible_virtualization_type != "docker"
 
 - name: restart sshd
   become: yes
   service:
       name: sshd
       state: restarted
+  when: ansible_virtualization_type != "docker"
 
 - name: reload dconf
   become: yes
   command: dconf update
+  when: ansible_virtualization_type != "docker"
 
 - name: restart auditd
   command: /sbin/service auditd restart
@@ -70,5 +77,6 @@
     warn: no
   when:
     - rhel7cis_skip_for_travis == false
+    - ansible_virtualization_type != "docker"
   tags:
     - skip_ansible_lint
